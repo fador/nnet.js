@@ -1,0 +1,30 @@
+{
+  "name": "nnet.js",
+  "version": "0.1.0",
+  "description": "Simple neural network implementation",
+  "author": "Marko Viitanen <fador@iki.fi>",
+  "contributors": [{
+    "name": "",
+    "email": ""
+  }],
+  "scripts": {
+    "start": "node app.js"
+  },
+  "main": "app.js",
+  "repository": {
+  "type": "git",
+  "url": "https://github.com/fador/nnet.js"
+},
+  "bugs": {
+  "url": "https://github.com/fador/nnet.js/issues"
+},
+  "keywords": [
+  "neural network"
+],
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "private": false,
+  "license": "BSD"
+}
