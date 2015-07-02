@@ -7,6 +7,8 @@
 
 var Neuron = require('./neuron');
 
+var printf = require('util').format;
+
 function Network() {
   this.layers = 0;
 
@@ -91,6 +93,61 @@ Network.prototype.propagate = function(input) {
   }
 
   return out;
+};
+
+Network.prototype.save = function() {
+  var out = "";
+  var netsize = [];
+
+  // Store network size on the first line
+  for(var i = 0; i < this.nodeArray.length; i++) {
+   netsize.push(this.nodeArray[i].length);
+  }
+  out += netsize.join(' ')+'\n';
+
+  // Input network doesn't have anything to save
+  // Start from the inner networks
+  for(var layer = 1; layer < this.nodeArray.length; layer++) {
+    for(var node = 0; node < this.nodeArray[layer].length; node++) {
+
+      // Bias for each node
+      out += this.nodeArray[layer][node].bias+'\n';
+
+      var nodeConnections = [];
+
+      for(var conn = 0; conn < this.nodeArray[layer][node].inputs.length; conn++) {
+        nodeConnections.push(this.nodeArray[layer][node].inputs[conn].weight);
+      }
+      out += nodeConnections.join(' ')+'\n';
+    }
+    out += '\n';
+  }
+
+
+  return out;
+};
+
+Network.prototype.load = function(datain) {
+
+  var lines = datain.split("\n");
+  // Init input vector
+  this.init(lines[0].split(' '));
+
+  var curline = 1;
+
+  for(var layer = 1; layer < this.nodeArray.length; layer++) {
+    for(var node = 0; node < this.nodeArray[layer].length; node++) {
+
+      // Bias for each node
+      this.nodeArray[layer][node].bias = parseFloat(lines[curline++]);
+
+      var weights = lines[curline++].split(' ');
+      for(var conn = 0; conn < this.nodeArray[layer][node].inputs.length; conn++) {
+        this.nodeArray[layer][node].inputs[conn].weight = parseFloat(weights[conn]);
+      }
+    }
+    curline++;
+  }
 };
 
 if (module) module.exports = Network;
