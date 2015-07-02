@@ -190,25 +190,18 @@ while(!proper) {
   // Output current target error
   count++;
   if(!(count % 1000)) console.log(last_target);
+
+  // Make backup of the network on every 10 000 tunings
   if(!(count%10000)) fs.writeFileSync("net.backup.txt", net.save(),{ endoding: 'utf8', flags: 'w'});
 }
 
 console.log(last_target);
 
-var almost_three = [
-    0, 1, 1, 1, 0,
-    1, 0, 0, 0, 1,
-    0, 0, 0, 0, 1,
-    0, 1, 1, 1, 0,
-    0, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    0, 1, 1, 1, 0,
-  ];
-
+// Do a saving and loading test
 fs.writeFileSync("net.backup_end.txt", net.save(),{ encoding: 'utf8', flags: 'w'});
-
 var netData = fs.readFileSync("net.backup_end.txt",{ encoding: 'utf8', flags: 'w'});
 net.load(netData);
+
 // print output for each test
 for(var i = 0; i < 10; i++) {
   var out = net.propagate(input_testset[i]);
@@ -218,8 +211,7 @@ for(var i = 0; i < 10; i++) {
 // Catch interrupt and save network
 process.on('SIGINT', function() {
   console.log("Caught interrupt signal");
-  var netData = net.save();
-  fs.writeFileSync("savedNet.txt", netData,{ endoding: 'utf8', flags: 'w'});
+  fs.writeFileSync("savedNet.txt", net.save(),{ endoding: 'utf8', flags: 'w'});
   process.exit();
 });
 
