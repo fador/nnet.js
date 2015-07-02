@@ -23,6 +23,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+var fs = require('fs');
+
 var Network = require("./src/network");
 
 var net = new Network();
@@ -157,12 +159,8 @@ console.log("Init network..");
 // Init network with 35 inputs, 100 + 50 inner layers and 10 outputs
 net.init([35, 100, 50, 10]);
 
-
-
 console.log("Propagate..");
-//var out = net.propagate(input_test);
 
-//console.log(out);
 var proper = 0;
 var count = 0;
 // Calculate initial error to target
@@ -187,11 +185,12 @@ while(!proper) {
   }
 
   // Termination condition
-  if(new_target < 0.05) proper = 1;
+  if(new_target < 0.01) proper = 1;
 
   // Output current target error
   count++;
   if(!(count % 1000)) console.log(last_target);
+  if(!(count%10000)) fs.writeFileSync("net.backup.txt", net.save(),{ endoding: 'utf8', flags: 'w'});
 }
 
 console.log(last_target);
@@ -206,13 +205,22 @@ var almost_three = [
     0, 1, 1, 1, 0,
   ];
 
+fs.writeFileSync("net.backup_end.txt", net.save(),{ encoding: 'utf8', flags: 'w'});
+
+var netData = fs.readFileSync("net.backup_end.txt",{ encoding: 'utf8', flags: 'w'});
+net.load(netData);
 // print output for each test
 for(var i = 0; i < 10; i++) {
   var out = net.propagate(input_testset[i]);
   console.log(out);
 }
 
-
-
+// Catch interrupt and save network
+process.on('SIGINT', function() {
+  console.log("Caught interrupt signal");
+  var netData = net.save();
+  fs.writeFileSync("savedNet.txt", netData,{ endoding: 'utf8', flags: 'w'});
+  process.exit();
+});
 
 
