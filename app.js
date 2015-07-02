@@ -151,17 +151,25 @@ var count = 0;
 var last_target = calc_testset(net, input_testset, target_testset);
 while(!proper) {
   // Tune amounts for two inner networks and output
-  net.tune([0.1, 0.1, 0.1]);
+  net.tune([0.1, 0.1, 0.1], 0.01);
 
+  var new_target=0;
   // If the new tuned network is worse than the previous, restore previous
-  var new_target = calc_testset(net, input_testset, target_testset);
+  new_target = calc_testset(net, input_testset, target_testset);
+
   if(last_target < new_target)  {net.restore(); }
   else {
-    last_target = new_target;
+    while(new_target <= last_target)
+    {
+      last_target = new_target;
+      net.retune();
+      new_target = calc_testset(net, input_testset, target_testset);
+    }
+    net.restore();
   }
 
   // Termination condition
-  if(new_target < 0.5) proper = 1;
+  if(new_target < 0.05) proper = 1;
 
   // Output current target error
   count++;

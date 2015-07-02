@@ -11,6 +11,7 @@ function Neuron() {
   this.bias = 0.0;
   this.output = 0.1;
   this.weightChange = [];
+  this.biasChange = 0;
 }
 
 Neuron.prototype.calculate = function() {

@@ -31,7 +31,7 @@ Network.prototype.init = function(layers) {
   }
 };
 
-Network.prototype.tune = function(rates) {
+Network.prototype.tune = function(rates, biasRate) {
   for(var layer = 1; layer < this.layers; layer++) {
     for(var node = 0; node < this.nodeArray[layer].length; node++) {
       this.nodeArray[layer][node].weightChange = [];
@@ -40,6 +40,22 @@ Network.prototype.tune = function(rates) {
         this.nodeArray[layer][node].inputs[conn].weight += change;
         this.nodeArray[layer][node].weightChange[conn] = change;
       }
+
+      var biasChange = (Math.random()-0.5)*biasRate;
+      this.nodeArray[layer][node].biasChange = biasChange;
+      this.nodeArray[layer][node].bias += biasChange;
+    }
+  }
+};
+
+Network.prototype.retune = function() {
+  for(var layer = 1; layer < this.layers; layer++) {
+    for(var node = 0; node < this.nodeArray[layer].length; node++) {
+      for(var conn = 0; conn < this.nodeArray[layer-1].length; conn++) {
+        var change = this.nodeArray[layer][node].weightChange[conn];
+        this.nodeArray[layer][node].inputs[conn].weight += change;
+      }
+      this.nodeArray[layer][node].bias += this.nodeArray[layer][node].biasChange;
     }
   }
 };
@@ -51,6 +67,7 @@ Network.prototype.restore = function() {
         var change = this.nodeArray[layer][node].weightChange[conn];
         this.nodeArray[layer][node].inputs[conn].weight -= change;
       }
+      this.nodeArray[layer][node].bias -= this.nodeArray[layer][node].biasChange;
     }
   }
 };
