@@ -10,58 +10,183 @@ var Network = require("./src/network");
 var net = new Network();
 
 
-var input_test = [
-  0, 0, 1, 1, 0, 0,
-  0, 1, 1, 1, 0, 0,
-  1, 1, 1, 1, 0, 0,
-  0, 0, 1, 1, 0, 0,
-  0, 0, 1, 1, 0, 0,
-  0, 0, 1, 1, 0, 0,
-  0, 0, 1, 1, 0, 0,
-  0, 0, 1, 1, 0, 0,
-  0, 1, 1, 1, 1, 0,
-  0, 1, 1, 1, 1, 0,
+var input_testset = [
+  [
+    0, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    1, 0, 0, 1, 1,
+    1, 0, 1, 0, 1,
+    1, 1, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    0, 1, 1, 1, 0,
+  ],
+  [
+    0, 0, 1, 0, 0,
+    0, 1, 1, 0, 0,
+    0, 0, 1, 0, 0,
+    0, 0, 1, 0, 0,
+    0, 0, 1, 0, 0,
+    0, 0, 1, 0, 0,
+    1, 1, 1, 1, 1,
+  ],
+  [
+    0, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    0, 0, 0, 0, 1,
+    0, 0, 1, 1, 0,
+    0, 1, 0, 0, 0,
+    1, 0, 0, 0, 0,
+    1, 1, 1, 1, 1,
+  ],
+  [
+    0, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    0, 0, 0, 0, 1,
+    0, 0, 1, 1, 0,
+    0, 0, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    0, 1, 1, 1, 0,
+  ],
+  [
+    0, 0, 0, 1, 1,
+    0, 0, 1, 0, 1,
+    0, 1, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    1, 1, 1, 1, 1,
+    0, 0, 0, 0, 1,
+    0, 0, 0, 0, 1,
+  ],
+  [
+    1, 1, 1, 1, 1,
+    1, 0, 0, 0, 0,
+    1, 1, 1, 1, 0,
+    0, 0, 0, 0, 1,
+    0, 0, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    0, 1, 1, 1, 0,
+  ],
+  [
+    0, 0, 1, 1, 0,
+    0, 1, 0, 0, 0,
+    1, 0, 0, 0, 0,
+    1, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    0, 1, 1, 1, 0,
+  ],
+  [
+    1, 1, 1, 1, 1,
+    1, 0, 0, 0, 1,
+    0, 0, 0, 0, 1,
+    0, 0, 0, 1, 0,
+    0, 0, 1, 0, 0,
+    0, 0, 1, 0, 0,
+    0, 0, 1, 0, 0,
+  ],
+  [
+    0, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    0, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    0, 1, 1, 1, 0,
+  ],
+  [
+    0, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    0, 1, 1, 1, 1,
+    0, 0, 0, 0, 1,
+    0, 0, 0, 1, 0,
+    0, 1, 1, 0, 0,
+  ]
+];
+var target_testset = [
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
 ];
 
-
+// Calculate single result difference against target
 function calc_target(result, target) {
   var diff = 0;
   for(var i = 0; i < result.length; i++) {
     diff += Math.abs(result[i] - target[i]);
   }
-  return diff;
+  return diff*diff;
+};
+
+// Calculate the whole testset difference against target
+function calc_testset(testnet, input_testset, target_testset) {
+  var totaldiff = 0;
+  for(var test = 0; test < input_testset.length; test++) {
+    var out = testnet.propagate(input_testset[test]);
+    totaldiff += calc_target(out, target_testset[test]);
+  }
+  return totaldiff;
 };
 
 console.log("Init network..");
-net.init([60, 15, 10]);
 
-var target = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+// Init network with 35 inputs, 100 + 50 inner layers and 10 outputs
+net.init([35, 100, 50, 10]);
+
+
 
 console.log("Propagate..");
-var out = net.propagate(input_test);
+//var out = net.propagate(input_test);
 
-console.log(out);
+//console.log(out);
 var proper = 0;
-var last_target = calc_target(out, target);
+var count = 0;
+// Calculate initial error to target
+var last_target = calc_testset(net, input_testset, target_testset);
 while(!proper) {
-  net.tune([0.1, 0.1]);
-  var out = net.propagate(input_test);
-  if(out[0] >  0.7) {
-    proper = 1;
-    for (var i = 1; i < 10; i++) {
-      if (out[i] > 0.3) {
-        proper = 0;
-        break;
-      }
-    }
-  }
-  var new_target = calc_target(out, target);
+  // Tune amounts for two inner networks and output
+  net.tune([0.1, 0.1, 0.1]);
+
+  // If the new tuned network is worse than the previous, restore previous
+  var new_target = calc_testset(net, input_testset, target_testset);
   if(last_target < new_target)  {net.restore(); }
   else {
     last_target = new_target;
   }
 
+  // Termination condition
+  if(new_target < 0.5) proper = 1;
+
+  // Output current target error
+  count++;
+  if(!(count % 1000)) console.log(last_target);
 }
-console.log(out);
+
+console.log(last_target);
+
+var almost_three = [
+    0, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    0, 0, 0, 0, 1,
+    0, 1, 1, 1, 0,
+    0, 0, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    0, 1, 1, 1, 0,
+  ];
+
+// print output for each test
+for(var i = 0; i < 10; i++) {
+  var out = net.propagate(input_testset[i]);
+  console.log(out);
+}
+
+
+
 
 
